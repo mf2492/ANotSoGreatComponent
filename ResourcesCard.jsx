@@ -19,7 +19,7 @@ const ResourcesCard = (userId) => {
 
   var sendEventTracking = function (resource) {
     sendEvt({
-      event_name: "web_dashboard_card_tap",
+      event_name: "web_dashboard_card_" + resource.id + "_" + resource.title + "_tap",
       cardType: resource.type,
       resourceUuid: resource.id
     });
