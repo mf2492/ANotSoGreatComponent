@@ -1,138 +1,82 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-
-import { CalloutCard } from "component/cards/CalloutCard";
+import React, { useEffect } from "react";
 
 import { sendEvt } from "services/event.service";
 
-import libraryIcon from "./library.png";
-import imgFallback from "./resource_fallback.png";
-
-import { getResources } from "services/resources.service";
+import imgFallback from "img/resource_fallback.png";
 
 import styles from "./ResourcesCard.module.scss";
 
-const ResourcesCard = (userId) => {
+const ResourcesCard = () => {
   const [resources, setResources] = useState([]);
-  const [primaryResource, setPrimaryResource] = useState([]);
+  const [primaryResource, setPrimaryResource] = useState(none);
   const [secondaryResources, setSecondaryResources] = useState([]);
 
-  var sendEventTracking = function (resource) {
-    sendEvt({
-      event_name: "web_dashboard_card_" + resource.id + "_" + resource.title + "_tap",
-      cardType: resource.type,
-      resourceUuid: resource.id
-    });
+  var sendEventTracking = (resourceUuid) => {
+    const evt = new Object();
+    evt = {
+      event_name: "web_dashboard_card_" + r.id + "_" + r.title + "_tap"
+    };
+    sendEvt(evt);
+    console.log("sending event");
   };
 
-  const markAsRead = () => {
-    console.log("article read");
-  };
-
-  useEffect(() => {
-    sendEvt({
-      event_name: "web_dashboard_mavenResourceBlock_view",
-      resourceIds: Array.from(
-        Object.values(resources),
-        (resource) => resource.slug
-      )
-    });
-  });
-
+  // TODO
   useEffect(async () => {
-    const req = await getResources(userId);
+    let req = await getResources(userId);
     setResources(req.resources);
+
     let primaryResource = resources[0];
     let secondaryResources = resources.slice(1, 5);
     setPrimaryResource(primaryResource);
     setSecondaryResources(secondaryResources);
-  }, []);
+    return;
+  });
+
+  // Get image of first resource
+  const i = () => {
+    const image = primaryResource.icon;
+    if (!primaryResource.icon || primaryResource.icon === undefined) {
+      return imgFallback;
+    }
+
+    if (image === true) {
+      return image;
+    }
+  };
 
   return (
-    <div className={styles.ResourcesCard}>
+    <div class={styles.ResourcesCard}>
       <div className="content">
-        <h2 className="serif">{props.title}</h2>
-
-        <div className="resources-container">
-          <div className="resource main-resource">
-            <a
-              href={primaryResource.url}
-              onClick={sendEventTracking(primaryResource)}
-            >
-              <div className="thumbnail">
-                <img
-                  src={
-                    !primaryResource.icon || primaryResource.icon === undefined
-                      ? imgFallback
-                      : primaryResource.icon
-                  }
-                  alt="primary image for article"
-                />
-              </div>
-            </a>
-
-            <span className="topic">{primaryResource.group}</span>
+        <h2>{title}</h2>
+        <br />
+        <br />
+        <div id="resource">
+          <div id="resource">
             <a
               href={primaryResource.url}
               onClick={sendEventTracking(primaryResource.uuid)}
-              className="resource-title serif"
             >
-              <h3>{primaryResource.title}</h3>
+              <div className="thumbnail">
+                <img src={i} alt="primary resource image" />
+              </div>
+              <span className="topic">{primaryResource.group}</span>
+              <h3 className="title" style="color:blue;">
+                {primaryResource.title}
+              </h3>
             </a>
           </div>
+        </div>
 
-          <div className="secondary-resources">
-            {secondaryResources.map((resource, index) => (
-              <div key={index} className="resource">
-                <div className="resource-content">
-                  <span className="topic">{resource.group}</span>
-                  <a
-                    href={resource.url}
-                    onClick={sendEventTracking(resource.uuid)}
-                    className="resource-title"
-                  >
-                    <h3>{resource.title}</h3>
-                  </a>
-                </div>
-
-                <a
-                  href={resource.url}
-                  onClick={sendEventTracking(resource.uuid)}
-                >
-                  <div className="thumbnail">
-                    <img
-                      src={
-                        !resource.icon || resource.icon == "None"
-                          ? imgFallback
-                          : resource.icon
-                      }
-                      alt="article thumbnail"
-                    />
-                  </div>
-                </a>
-              </div>
-            ))}
-          </div>
+        <div className="secondary-resources">
+          {secondaryResources.map((resource, index) => (
+            <div key={index} className="resource">
+              <SecondaryResource {...resource} />
+            </div>
+          ))}
         </div>
       </div>
-
-      <CalloutCard
-        {...props}
-        style="condensed"
-        body={props.footer_body}
-        cta={{
-          text: "Explore the library",
-          url: "/library"
-        }}
-        icon={libraryIcon}
-      />
     </div>
   );
-};
-
-ResourcesCard.propTypes = {
-  footer_body: PropTypes.string.isRequired,
-  resources: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 export default ResourcesCard;
